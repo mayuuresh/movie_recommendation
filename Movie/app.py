@@ -94,9 +94,13 @@ def home():
     popular_movies = df.sort_values('popularity', ascending=False).head(10)['title'].tolist()
     return render_template('index.html', popular_movies=popular_movies)
 
-@app.route('/recommend', methods=['POST'])
+@app.route('/recommend', methods=['GET', 'POST'])
 def recommend():
-    movie_title = request.form.get('movie_title')
+    if request.method == 'POST':
+        movie_title = request.form.get('movie_title')
+    else:
+        movie_title = request.args.get('movie_title')  # For GET requests
+    
     # Store the search query in session
     session['last_search'] = movie_title
     
@@ -115,7 +119,6 @@ def recommend():
         for idx in recommended_indices
     ]
     return render_template('recommendations.html', movie_title=movie_title, recommendations=recommended_movies, error=False)
-
 @app.route('/movie/<int:movie_id>')
 def movie_detail(movie_id):
     movie_details = get_movie_details(movie_id)
@@ -147,4 +150,4 @@ def server_error(e):
     return render_template('500.html'), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
